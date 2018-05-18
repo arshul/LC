@@ -23,7 +23,7 @@ ReactDOM.render(
 
 console.log("index")
 client.query({
-  query: gql`{books}`,
+  query: gql`{books { title }}`,
 }).then(console.log)
 
 
