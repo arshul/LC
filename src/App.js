@@ -5,7 +5,24 @@ import { gql } from 'apollo-boost'
 
 class  App extends React.Component {
   render() {
-    return <div>Hello</div>;
+    return <div>
+      {this.props.data.loading === true ? "Loading" : this.props.data.books.map(data =>
+          <ul>
+            <li style={{fontWeight: 'bold'}}><a href={data.author}>{data.title}</a></li>
+          </ul>
+        )}
+    </div>;
   }
 } 
-export default App
+const AppWithData = graphql(
+  gql`query{books{title author}}`,
+  {
+    options: {
+      variables: {
+        name: "tuts"
+      }
+    }
+  }
+)(App)
+ 
+export default AppWithData;

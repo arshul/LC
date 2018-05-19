@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const { graphqlExpress,graphiqlExpress } = require('apollo-server-express')
 // const { schema } = require('./schema')
 const { makeExecutableSchema } = require('graphql-tools')
-
+const cors = require('cors')
 
 
 const books = [
@@ -19,8 +19,8 @@ const books = [
 
 // The GraphQL schema in string form
 const typeDefs = `
-  type Query { books: [Book] }
-  type Book { title: String, author: String }
+  type Query { video: [Video] }
+  type Video { id:String, title: String, channel: String, thumb_url:String, description:String }
 `;
 
 // The resolvers
@@ -35,6 +35,7 @@ const schema = makeExecutableSchema({
 });
 
 const server = express();
+server.use(cors());
 server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
