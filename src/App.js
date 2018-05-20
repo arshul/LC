@@ -23,6 +23,6 @@ const AppWithData = graphql(
       }
     }
   }
-)(App)
+)(App);
  
 export default AppWithData;
