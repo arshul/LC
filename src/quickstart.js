@@ -11,7 +11,7 @@ var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
 var TOKEN_PATH = TOKEN_DIR + 'youtube-nodejs-quickstart.json';
 
 
-function getAuth(){
+exports.getAuth= function(callback){
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
         if (err) {
             console.log('Error loading client secret file: ' + err);
@@ -26,10 +26,10 @@ function getAuth(){
         // Check if we have previously stored a token.
         fs.readFile(TOKEN_PATH, function(err, token) {
             if (err) {
-                getNewToken(oauth2Client);
+                getNewToken(oauth2Client,callback);
             } else {
                 oauth2Client.credentials = JSON.parse(token);
-                return oauth2Client;
+                callback(oauth2Client)
             }
         });
     });
@@ -53,7 +53,7 @@ function getAuth(){
                 }
                 oauth2Client.credentials = token;
                 storeToken(token);
-                return oauth2Client
+                callback(oauth2Client)
             });
         });
     }
@@ -73,41 +73,9 @@ function getAuth(){
         console.log('Token stored to ' + TOKEN_PATH);
     }
 
-}
+};
 
-exports.search = function (keyword) {
-    var service = google.youtube('v3');
-    var auth = getAuth();
-    service.search.list({
-            auth: auth,
-            part: 'id,snippet',
-            q: keyword
-        },function(err, response) {
-        if (err) {
-            console.log('The API returned an error: ' + err);
-            return;
-        }
-        var result = response.data.items;
-        if (channels.length == 0) {
-            console.log('Not found.');
-        } else {
-            var return_data = [];
-            console.log(result);
-            for (var i=0; i<result.length; i++) {
-                if (result[i].id.kind=="youtube#video"){
-                    return_data.push({
-                        "id":result[i].id.videoId,
-                        "title":result[i].snippet.title,
-                        "channel":result[i].snippet.channelTitle,
-                        "thumb_url":result[i].snippet.thumbnails.url,
-                        "description":result[i].snippet.description
-                    })
-                }
-            return return_data;
-            }
-        }
-    });
-}
+
 
 
 

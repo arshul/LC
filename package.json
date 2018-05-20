@@ -5,6 +5,8 @@
   "dependencies": {
     "apollo-boost": "^0.1.6",
     "apollo-link-context": "^1.0.8",
+    "cors": "^2.8.4",
+    "express-graphql": "^0.6.12",
     "google-auth-library": "^1.5.0",
     "googleapis": "^30.0.0",
     "graphql": "^0.13.2",

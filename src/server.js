@@ -1,25 +1,15 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const { graphqlExpress,graphiqlExpress } = require('apollo-server-express')
-// const { schema } = require('./schema')
+
 var { buildSchema } = require('graphql');
 const { makeExecutableSchema } = require('graphql-tools')
 const cors = require('cors');
 var graphqlHTTP = require('express-graphql');
+var {google} = require('googleapis');
 const utube = require('./quickstart');
 
-const books = [
-  {
-    title: "Harry Potter and the Sorcerer's stone",
-    author: 'J.K. Rowling',
-  },
-  {
-    title: 'Jurassic Park',
-    author: 'Michael Crichton',
-  },
-];
 
-// The GraphQL schema in string form
 var schema = buildSchema(`
   type Query {
     search(search_query: String!): [Video]
@@ -28,8 +18,41 @@ var schema = buildSchema(`
 `);
 var root = {
     search: function ({search_query}) {
-        var response = utube.search(search_query);
-        return response;
+        var service = google.youtube('v3');
+        var callback = function (auth) {
+            service.search.list({
+                auth: auth,
+                part: 'id,snippet',
+                q: search_query
+            },function(err, response) {
+                if (err) {
+                    console.log('The API returned an error: ' + err);
+                    return;
+                }
+                var result = response.data.items;
+                if (result.length == 0) {
+                    console.log('Not found.');
+                    return;
+                } else {
+                    var return_data = [];
+                    for (var i=0; i<result.length; i++) {
+                        console.log(result[i].id.kind);
+                        if (result[i].id.kind=="youtube#video"){
+                            return_data.push({
+                                "id":result[i].id.videoId,
+                                "title":result[i].snippet.title,
+                                "channel":result[i].snippet.channelTitle,
+                                "thumb_url":result[i].snippet.thumbnails.url,
+                                "description":result[i].snippet.description
+                            })
+                        }
+                    }
+                    console.log(return_data);
+                    return return_data;
+                }
+            });
+        };
+        utube.getAuth(callback)
     }
 };
 //
@@ -51,7 +74,7 @@ server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
-app.use('/graphql', graphqlHTTP({
+server.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: root,
     graphiql: true,
