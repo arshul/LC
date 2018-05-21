@@ -3,7 +3,7 @@ var { buildSchema } = require('graphql');
 const cors = require('cors');
 var graphqlHTTP = require('express-graphql');
 var {google} = require('googleapis');
-const utube = require('./authorize');
+var utube =  require('./authorize');
 
 
 var schema = buildSchema(`
@@ -48,7 +48,10 @@ var root = {
                 }
             });
         };
-        utube.getAuth(search_cb)
+
+        let promise = utube.getAuth();
+        // utube.getAuth(search_cb)
+        promise.then(auth=>{search_cb(auth)});
     }
 };
 

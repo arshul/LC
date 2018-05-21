@@ -6,7 +6,7 @@ import { gql } from 'apollo-boost'
 class  App extends React.Component {
   render() {
     return <div>
-      {this.props.data.loading === true ? "Loading" : this.props.data.books.map(data =>
+      {this.props.data.loading === true ? "Loading" : this.props.data.search.map(data =>
           <ul>
             <li style={{fontWeight: 'bold'}}><a href={data.author}>{data.title}</a></li>
           </ul>
