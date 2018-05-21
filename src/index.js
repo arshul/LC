@@ -28,18 +28,18 @@ ReactDOM.render(
 //   query: gql`{books { title author }}`,
 // }).then(console.log)
 
-var search_query = "carryminati"
+var search_query = "carryminati";
 var xhr = new XMLHttpRequest();
 xhr.responseType = 'json';
-xhr.open("POST", "/graphql");
+xhr.open("POST", "http://localhost:4000/graphql");
 xhr.setRequestHeader("Content-Type", "application/json");
 xhr.setRequestHeader("Accept", "application/json");
 xhr.onload = function () {
     console.log('data returned:', xhr.response);
 }
 
-var query = `query RollDice($search_query: String!) {
-  search(search_query: $search_query)
+var query = `query youtubeSearch($search_query: String!) {
+  search(search_query: $search_query){id}
 }`;
 xhr.send(JSON.stringify({
     query: query,

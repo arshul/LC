@@ -1,13 +1,9 @@
 const express = require('express')
-const bodyParser = require('body-parser')
-const { graphqlExpress,graphiqlExpress } = require('apollo-server-express')
-
 var { buildSchema } = require('graphql');
-const { makeExecutableSchema } = require('graphql-tools')
 const cors = require('cors');
 var graphqlHTTP = require('express-graphql');
 var {google} = require('googleapis');
-const utube = require('./quickstart');
+const utube = require('./authorize');
 
 
 var schema = buildSchema(`
@@ -19,7 +15,7 @@ var schema = buildSchema(`
 var root = {
     search: function ({search_query}) {
         var service = google.youtube('v3');
-        var callback = function (auth) {
+        var search_cb = function (auth) {
             service.search.list({
                 auth: auth,
                 part: 'id,snippet',
@@ -42,7 +38,7 @@ var root = {
                                 "id":result[i].id.videoId,
                                 "title":result[i].snippet.title,
                                 "channel":result[i].snippet.channelTitle,
-                                "thumb_url":result[i].snippet.thumbnails.url,
+                                "thumb_url":result[i].snippet.thumbnails,
                                 "description":result[i].snippet.description
                             })
                         }
@@ -52,20 +48,9 @@ var root = {
                 }
             });
         };
-        utube.getAuth(callback)
+        utube.getAuth(search_cb)
     }
 };
-//
-// // The resolvers
-// const resolvers = {
-//   Query: { books: () => books },
-// };
-//
-// // Put together a schema
-// const schema = makeExecutableSchema({
-//   typeDefs,
-//   resolvers,
-// });
 
 const server = express();
 server.use(cors());
