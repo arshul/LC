@@ -14,44 +14,44 @@ var schema = buildSchema(`
 `);
 var root = {
     search: function ({search_query}) {
-        var service = google.youtube('v3');
-        var search_cb = function (auth) {
-            service.search.list({
-                auth: auth,
-                part: 'id,snippet',
-                q: search_query
-            },function(err, response) {
-                if (err) {
-                    console.log('The API returned an error: ' + err);
-                    return;
-                }
-                var result = response.data.items;
-                if (result.length == 0) {
-                    console.log('Not found.');
-                    return;
-                } else {
-                    var return_data = [];
-                    for (var i=0; i<result.length; i++) {
-                        console.log(result[i].id.kind);
-                        if (result[i].id.kind=="youtube#video"){
-                            return_data.push({
-                                "id":result[i].id.videoId,
-                                "title":result[i].snippet.title,
-                                "channel":result[i].snippet.channelTitle,
-                                "thumb_url":result[i].snippet.thumbnails,
-                                "description":result[i].snippet.description
-                            })
-                        }
+        return new Promise((resolve, reject) => {
+            var search_cb = function (auth) {
+                var service = google.youtube('v3');
+                service.search.list({
+                    auth: auth,
+                    part: 'id,snippet',
+                    q: search_query
+                },function(err, response) {
+                    if (err) {
+                        console.log('The API returned an error: ' + err);
+                        return;
                     }
-                    console.log(return_data);
-                    return return_data;
-                }
-            });
-        };
-
-        let promise = utube.getAuth();
+                    var result = response.data.items;
+                    if (result.length == 0) {
+                        console.log('Not found.');
+                        return;
+                    } else {
+                        var return_data = [];
+                        for (var i=0; i<result.length; i++) {
+                            console.log(result[i].id.kind);
+                            if (result[i].id.kind=="youtube#video"){
+                                return_data.push({
+                                    "id":result[i].id.videoId,
+                                    "title":result[i].snippet.title,
+                                    "channel":result[i].snippet.channelTitle,
+                                    "thumb_url":result[i].snippet.thumbnails,
+                                    "description":result[i].snippet.description
+                                })
+                            }
+                        }
+                        console.log(return_data);
+                        resolve(return_data)
+                    }
+                });
+            };
+            utube.getAuth(search_cb);
+        });
         // utube.getAuth(search_cb)
-        promise.then(auth=>{search_cb(auth)});
     }
 };
 
