@@ -1,7 +1,8 @@
 import React from 'react'
-import { graphql , ApolloConsumer} from 'react-apollo'
+import {ApolloConsumer} from 'react-apollo'
 import { gql } from 'apollo-boost'
-
+import 'font-awesome/css/font-awesome.min.css';
+var Loader = require('react-loader');
 
 const searchQuery =gql`
 query youtubeSearch($search_query: String!) {
@@ -13,32 +14,36 @@ query youtubeSearch($search_query: String!) {
         thumb_url
     }
 }`;
-class Input extends React.Component {
+class Body extends React.Component {
     constructor(props){
         super(props);
 
         this.state = {
             keyword : '',
-            videos : []
+            videos : [],
+            loaded:true
         };
 
         this.updateInput = this.updateInput.bind(this);
     }
     updateInput(event){
-        this.setState({keyword : event.target.value})
+        this.setState({keyword : event.target.value,loaded:true})
     }
     // componentDidMount(data) {
     //     this.videoList(data);
     // }
     videoList(result){
-        this.setState({videos:result.search});
+        this.setState({videos:result.search,loaded:true});
     }
 
     render() {
-        const videos = this.state.videos.map((video, i) => (
-            <div>
-                <h1>{ video.title }</h1>
-                <span>{ video.description }, { video.id }</span>
+        const videos = this.state.videos.map((video) => (
+            <div style={{clear:'left',boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',transition: '0.3s',width:'700px',minHeight:'250px',marginLeft:'28%',paddingTop:'15px'}}>
+                <img src={video.thumb_url} alt={video.title} style={{paddingRight:'20px',float:'left',width:"250px",height:"250px"}}></img>
+                <div >
+                    <a href={'https://youtu.be/'+video.id} target='_blank'><h4><b>{video.title}</b></h4></a>
+                    <p>{video.description}</p>
+                </div>
             </div>
         ));
         const buttonStyle = {
@@ -61,24 +66,29 @@ class Input extends React.Component {
         };
         return <div>
             <div>
-            <input style={inputStyle} type="text" onChange={this.updateInput}/>
+            <input style={inputStyle} type="text" onChange={this.updateInput}/> &nbsp;
                 <ApolloConsumer>
                     {client => (<button style={buttonStyle}
                         onClick={async () => {
+                            this.setState({loaded:false});
                             const { data } = await client.query({
                                 query: searchQuery,
                                 variables: { search_query: this.state.keyword }
                             });
-                            this.videoList(data) // send this data to output
+                            if(data){
+                                console.log(data);
+                                this.videoList(data)
+                            }
                         }}
-                    >
-                        Search
+                    ><i className="fa fa-search"> Search</i>
                     </button>
                     )}
                 </ApolloConsumer>
             </div>
             <div id="layout-content" className="layout-content-wrapper">
-                <div className="panel">{ videos }</div>
+                <Loader loaded={this.state.loaded}>
+                <div>{ videos }</div>
+                </Loader>
             </div>
         </div>;
     }
@@ -94,16 +104,10 @@ class  App extends React.Component {
   render() {
     return <div>
         <Header/>
-        <Input/>
-          {/*{this.props.data.loading === true ? "Loading" : this.props.data.search.map(data =>*/}
-              {/*<ul>*/}
-                {/*<li key={data.id} style={{fontWeight: 'bold'}}><a href={"https://youtu.be/"+data.id}>{data.title}</a></li>*/}
-              {/*</ul>*/}
-            {/*)}*/}
+        <Body/>
     </div>;
   }
 }
 // const AppWithData = graphql(searchQuery, {options: {variables: {search_query:"mkbhd"}}})(App);
-
 export default App;
 

@@ -1,4 +1,4 @@
-const express = require('express')
+const express = require('express');
 var { buildSchema } = require('graphql');
 const cors = require('cors');
 var graphqlHTTP = require('express-graphql');
@@ -12,24 +12,25 @@ var schema = buildSchema(`
   }
   type Video { id:String, title: String, channel: String, thumb_url:String, description:String }
 `);
-var root = {
+const root = {
     search: function ({search_query}) {
         return new Promise((resolve, reject) => {
-            var search_cb = function (auth) {
-                var service = google.youtube('v3');
+            let search_cb = function (auth) {
+                const service = google.youtube('v3');
                 service.search.list({
                     auth: auth,
                     part: 'id,snippet',
-                    q: search_query
+                    q: search_query,
+                    maxResults:20
                 },function(err, response) {
                     if (err) {
                         console.log('The API returned an error: ' + err);
-                        return;
+                        reject([]);
                     }
-                    var result = response.data.items;
+                    let result = response.data.items;
                     if (result.length == 0) {
                         console.log('Not found.');
-                        return;
+                        reject([]);
                     } else {
                         var return_data = [];
                         for (var i=0; i<result.length; i++) {
@@ -39,7 +40,7 @@ var root = {
                                     "id":result[i].id.videoId,
                                     "title":result[i].snippet.title,
                                     "channel":result[i].snippet.channelTitle,
-                                    "thumb_url":result[i].snippet.thumbnails,
+                                    "thumb_url":result[i].snippet.thumbnails.high.url,
                                     "description":result[i].snippet.description
                                 })
                             }
@@ -51,7 +52,6 @@ var root = {
             };
             utube.getAuth(search_cb);
         });
-        // utube.getAuth(search_cb)
     }
 };
 
@@ -68,7 +68,7 @@ server.use('/graphql', graphqlHTTP({
     graphiql: true,
 }));
 server.listen(4000, () => {
-  console.log('GraphQL listening at http://localhost:4000/graphql')
+  console.log('GraphQL listening at http://localhost:4000/graphql');
   console.log('GraphiQL listening at http://localhost:4000/graphiql')
 });
 
