@@ -1,12 +1,12 @@
 const express = require('express');
-var { buildSchema } = require('graphql');
+const {buildSchema} = require('graphql');
 const cors = require('cors');
-var graphqlHTTP = require('express-graphql');
-var {google} = require('googleapis');
-var utube =  require('./authorize');
+const graphqlHTTP = require('express-graphql');
+const {google} = require('googleapis');
+const utube =  require('./authorize');
 
 
-var schema = buildSchema(`
+let schema = buildSchema(`
   type Query {
     search(search_query: String!): [Video]
   }
@@ -32,10 +32,10 @@ const root = {
                         console.log('Not found.');
                         reject([]);
                     } else {
-                        var return_data = [];
-                        for (var i=0; i<result.length; i++) {
+                        let return_data = [];
+                        for (let i=0; i<result.length; i++) {
                             console.log(result[i].id.kind);
-                            if (result[i].id.kind=="youtube#video"){
+                            if (result[i].id.kind==="youtube#video"){
                                 return_data.push({
                                     "id":result[i].id.videoId,
                                     "title":result[i].snippet.title,
