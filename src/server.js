@@ -67,7 +67,7 @@ server.use('/graphql', graphqlHTTP({
     rootValue: root,
     graphiql: true,
 }));
-server.listen(4000, () => {
+server.listen(4000,'0.0.0.0', () => {
   console.log('GraphQL listening at http://localhost:4000/graphql');
   console.log('GraphiQL listening at http://localhost:4000/graphiql')
 });
